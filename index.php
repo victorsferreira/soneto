@@ -1,8 +1,8 @@
 <?php
-
-require('config.php');
-
 session_start();
+
+require('config/setup.php');
+require('core/helpers.php');
 
 $_DATA = [
   'body' => $_POST,
@@ -13,6 +13,7 @@ $_DATA = [
 ];
 
 global $config;
+
 if(isset($config['installation_path'][0]) && $config['installation_path'][0] !== '/'){
   $config['installation_path'] = '/'.$config['installation_path'];
 }
@@ -43,42 +44,21 @@ foreach($routes as $route){
   $path = str_replace('(:any?)','(.*)',$path); //any optional string
   $path = str_replace('(:number?)','([0-9]*)',$path); //any optional number
 
-  $path = regexReplaceRecursively('\/:(.*?)\/','/(.+)/',$path);
-  $path = regexReplaceRecursively('\/:(.*?)$','/(.+)',$path);
-  $path = regexReplaceRecursively('\/:(.*?)\?\/','/(.*)/',$path);
-  $path = regexReplaceRecursively('\/:(.*?)\?$','/(.*)',$path);
+  $path = regexReplaceRecursively('\/:(.*?)\/','/(.+)/',$path); // any parameter
+  $path = regexReplaceRecursively('\/:(.*?)$','/(.+)',$path); // any parameter
+  $path = regexReplaceRecursively('\/:(.*?)\?\/','/(.*)/',$path); // any optional parameter
+  $path = regexReplaceRecursively('\/:(.*?)\?$','/(.*)',$path); // any optional parameter
 
   $path = str_replace('/','\/',$path);
 
   if(preg_match('/'.$path.'/', $url)){
     setRouteParams($route['path'],$url);
+    $action = $route['action'];
+
+    if(is_callable($action)) $action();
     // pick controller and action
     break;
   }
-}
-
-function regexReplaceRecursively($pattern,$replace,$input){
-  while(true){
-    $new_input = preg_replace('/'.$pattern.'/',$replace,$input);
-    if($input == $new_input) break;
-    else $input = $new_input;
-  }
-
-  return $input;
-}
-
-function setRouteParams($route,$url){
-  $route_parts = explode('/',$route);
-  $url_parts = explode('/',$url);
-  $params = [];
-
-  foreach($route_parts as $i => $route_part){
-    if($route_part != '' && $route_part[0] == ':'){
-      $params[substr($route_part,1)] = $url_parts[$i];
-    }
-  }
-
-  $_DATA['params'] = $params;
 }
 
 ?>
