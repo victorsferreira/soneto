@@ -8,7 +8,7 @@ $_DATA = [
   'body' => $_POST,
   'query' => $_GET,
   'session' => $_SESSION,
-  'cookie' => $_COOKIE
+  'cookie' => $_COOKIE,
   'params' => []
 ];
 
@@ -78,7 +78,7 @@ function setRouteParams($route,$url){
     }
   }
 
-  $_DATA['params'] = $params;]
+  $_DATA['params'] = $params;
 }
 
 ?>
