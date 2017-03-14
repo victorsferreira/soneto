@@ -8,7 +8,6 @@ class Middleware{
 
     public function getInstance(){
         if(self::$instance === null){
-            echo 'criou';
             self::$instance = new static();
         }
 
@@ -19,7 +18,11 @@ class Middleware{
 
     protected function __construct(){}
 
-    public function useBefore(){}
+    public function before(){}
+
+    public function next(){
+        
+    }
 }
 
  ?>
