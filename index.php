@@ -32,6 +32,7 @@ if($url[count($url) - 1] == '/') $url = substr($url,0,-1);
 $routes = [
   [
     'path' => '/:id/:id2/:name',
+    'method' => 'get',
     'action' => 'controller1#foo1'
   ]
 ];
