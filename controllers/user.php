@@ -5,7 +5,7 @@ namespace Controller;
 class User extends \Core\Controller{
 
   public function foo(){
-    echo 'Foo';
+    echo 'Foo xxx';
   }
 
 }

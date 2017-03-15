@@ -88,6 +88,12 @@ class HTTP{
         require_once('./core/Middleware.php');
         $middleware = Middleware::getInstance();
 
+        $middleware->before(function($http,$next){
+            if($http->method == 'get'){
+                echo 'Não aceitamos requisições GET';
+            }else $next($http);
+        });
+
         if($this->action){
             $middleware->before(function($http){
                 if(is_callable($this->action)){
