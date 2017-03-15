@@ -16,7 +16,7 @@ The features that must be contained in the first release are:
 ## Getting Started
 Download and unzip or clone Soneto project from Github to your host directory. You can rename Soneto folder and then open it with your favourite IDE.
 
-#### Directory structure
+### Directory structure
 Initially Soneto comes with a very simple directory structure:
 - **/config** where most of your configuration preferences will be set
 - **/controllers** you will create your custom controllers here
@@ -24,7 +24,7 @@ Initially Soneto comes with a very simple directory structure:
 - **/modules** all installed modules must reside in this folder
 - **/views** the default folder for views
 
-#### Lifecycle
+### Lifecycle
 The common lifecyle of a Soneto instance is very much like the following steps:
 - Actual birth of **Soneto** instance and initial **setups**
 - Loading of external **modules**
@@ -34,14 +34,15 @@ The common lifecyle of a Soneto instance is very much like the following steps:
 - Calling **action** in **controller**
 - Rendering a view or sending a response back to client
 
-#### Routes
+### Routes
 
-#### Middlewares stack
+### Middlewares stack
 
-#### Modules
+### Modules
 Soneto was designed to be simple. Most features are provided by modules. There are official and third-party modules.
 
-To create a module, place everything in folder whose name is the same of the model. The only required file is an *index.php*. The index.php must be namespaced as `Module` and make a call to the `installModule` method of Soneto.
+## Creating a module
+To create a module, place everything in a folder whose name is the name of the module. The only required file is the *index.php*. The *index.php* must be namespaced as `Module` and make a call to the `Soneto::installModule($name,$callback)`.
 
 ```php
 namespace Module;
@@ -53,8 +54,9 @@ Soneto::installModule('router',function($soneto){
 });
 ```
 
-The `installModule` method receives both the name of the module as the first parameter and a callback function used to install the module. The Soneto instance `$soneto` will be sent when the callback function is invoked.
+The `installModule` method receives both the name of the module as the first parameter and a callback function used to install the module. The Soneto instance `$soneto` will be sent when the callback function is invoked. Anything that is returned by the callback function will be stored in the Soneto instance and can be retrieved with `Soneto::module($name)`.
 
+## Installing a module
 To install a module, just place the module folder in */modules* and add the name of the module to the `$modules` array in */config/modules*.
 
 Remember to be very careful when installing third-party modules since we are never sure what it could be doing on
