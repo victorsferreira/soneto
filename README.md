@@ -18,11 +18,11 @@ Download and unzip or clone Soneto project from Github to your host directory. Y
 
 #### Directory structure
 Initially Soneto comes with a very simple directory structure:
-**/config** where most of your configuration preferences will be set
-**/controllers** you will create your custom controllers here
-**/core** don't touch any file here, you know why
-**/modules** all installed modules must reside in this folder
-**/views** the default folder for views
+- **/config** where most of your configuration preferences will be set
+- **/controllers** you will create your custom controllers here
+- **/core** don't touch any file here, you know why
+- **/modules** all installed modules must reside in this folder
+- **/views** the default folder for views
 
 #### Lifecycle
 The common lifecyle of a Soneto instance is very much like the following steps:
