@@ -43,7 +43,7 @@ Soneto was designed to be simple. Most features are provided by modules. There a
 
 To create a module, place everything in folder whose name is the same of the model. The only required file is an *index.php*. The index.php must be namespaced as `Module` and make a call to the `installModule` method of Soneto.
 
-`
+```php
 namespace Module;
 use \Core\Soneto as Soneto;
 Soneto::installModule('router',function($soneto){
@@ -51,7 +51,7 @@ Soneto::installModule('router',function($soneto){
 
   return Router::getInstance();
 });
-`
+```
 
 The `installModule` method receives both the name of the module as the first parameter and a callback function used to install the module. The Soneto instance `$soneto` will be sent when the callback function is invoked.
 
