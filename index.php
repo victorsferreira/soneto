@@ -47,41 +47,10 @@ $HTTP = HTTP::getInstance([
   'method' => strtolower($_SERVER['REQUEST_METHOD']),
   'headers' => apache_request_headers()
 ]);
+
 $soneto->set('HTTP',$HTTP);
 
-// refactor
-$url = $_SERVER['REQUEST_URI'];
-if(strpos($url,$setup['installation_path']) !== false) $url = substr($url,strlen($setup['installation_path']));
-if($url[strlen($url) - 1] == '/') $url = substr($url,0,-1);
-
-foreach($soneto->getRoutes() as $route){
-  $method = isset($route['method']) ? strtolower($route['method']) : 'get';
-
-  if($method !== $HTTP->method) continue;
-
-  $path = $route['path'];
-  $path = str_replace('(:any)','(.+)',$path); //any string
-  $path = str_replace('(:number)','([0-9]+)',$path); //any number
-  $path = str_replace('(:any?)','(.*)',$path); //any optional string
-  $path = str_replace('(:number?)','([0-9]*)',$path); //any optional number
-
-  $path = regexReplaceRecursively('\/:(.*?)\/','/(.+)/',$path); // any parameter
-  $path = regexReplaceRecursively('\/:(.*?)$','/(.+)',$path); // any parameter
-  $path = regexReplaceRecursively('\/:(.*?)\?\/','/(.*)/',$path); // any optional parameter
-  $path = regexReplaceRecursively('\/:(.*?)\?$','/(.*)',$path); // any optional parameter
-
-  $path = str_replace('/','\/',$path);
-
-  if(preg_match('/^'.$path.'$/', $url)){
-    // refactor
-    $HTTP->setRouteParams($route['path'],$url);
-    $HTTP->setRouteData($route,$url);
-
-    // Handle request with found route
-    $HTTP->handle($route);
-
-    break;
-  }
-}
+$HTTP->findRoute();
+$HTTP->handle();
 
 ?>

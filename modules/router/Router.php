@@ -1,6 +1,7 @@
 <?php
 
 namespace Module;
+use \Core\Soneto as Soneto;
 
 class Router{
 
@@ -8,7 +9,7 @@ class Router{
 
   public function getInstance(){
     if(self::$instance === null){
-      self::$instance = new static();
+      self::$instance = new self();
     }
 
     return self::$instance;
@@ -53,7 +54,7 @@ class Router{
       'action' => $action
     ];
 
-    $soneto = \Core\Soneto::getInstance();
+    $soneto = Soneto::getInstance();
     $routes = $soneto->getRoutes();
     $routes[] = $route;
     $soneto->routes($routes);

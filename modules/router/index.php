@@ -1,8 +1,9 @@
 <?php
 
 namespace Module;
+use \Core\Soneto as Soneto;
 
-\Core\Soneto::installModule('router',function($soneto){
+Soneto::installModule('router',function($soneto){
   require(dirname(__FILE__).'/Router.php');
   
   return Router::getInstance();

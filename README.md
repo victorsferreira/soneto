@@ -33,3 +33,29 @@ The common lifecyle of a Soneto instance is very much like the following steps:
 - Resolution of **middleware** stack *pre-action*
 - Calling **action** in **controller**
 - Rendering a view or sending a response back to client
+
+#### Routes
+
+#### Middlewares stack
+
+#### Modules
+Soneto was designed to be simple. Most features are provided by modules. There are official and third-party modules.
+
+To create a module, place everything in folder whose name is the same of the model. The only required file is an *index.php*. The index.php must be namespaced as `Module` and make a call to the `installModule` method of Soneto.
+
+`
+namespace Module;
+use \Core\Soneto as Soneto;
+Soneto::installModule('router',function($soneto){
+  require(dirname(__FILE__).'/Router.php');
+
+  return Router::getInstance();
+});
+`
+
+The `installModule` method receives both the name of the module as the first parameter and a callback function used to install the module. The Soneto instance `$soneto` will be sent when the callback function is invoked.
+
+To install a module, just place the module folder in */modules* and add the name of the module to the `$modules` array in */config/modules*.
+
+Remember to be very careful when installing third-party modules since we are never sure what it could be doing on
+the background.
