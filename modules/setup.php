@@ -1,7 +1,0 @@
-<?php
-
-$modules = [
-    'router'
-];
-
- ?>

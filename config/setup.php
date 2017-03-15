@@ -1,6 +1,6 @@
 <?php
 
-$config = [];
-$config['installation_path'] = 'soneto';
+$setup = [];
+$setup['installation_path'] = 'soneto';
 
  ?>

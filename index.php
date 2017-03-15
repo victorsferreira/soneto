@@ -1,71 +1,87 @@
 <?php
 
+namespace Core;
+define('Soneto','__soneto');
+
 session_start();
 
-require('config/setup.php');
-require('core/helpers.php');
-require('core/HTTP.php');
+// Import helper functions
+require_once('core/helpers.php');
 
-$GLOBALS['__soneto'] = [];
+// Create Soneto
+require_once('core/Soneto.php');
+$soneto = Soneto::getInstance();
+$GLOBALS[Soneto] = $soneto;
 
-global $config;
+// Set misc data
+$soneto->set('directory',dirname(__FILE__));
 
-if(isset($config['installation_path'][0]) && $config['installation_path'][0] !== '/'){
-    $config['installation_path'] = '/'.$config['installation_path'];
-}
+require_once('core/Middleware.php');
+$soneto->set('Middleware',Middleware::getInstance());
 
+// Import application setup
+require_once('config/setup.php');
+global $setup;
+$setup = $soneto->setupCheck($setup);
+$soneto->setup($setup);
+
+// Import and load modules
+require_once('config/modules.php');
+global $modules;
+$soneto->modules($modules);
+$soneto->loadModules();
+
+// Import and load routes
+require_once('config/routes.php');
+global $routes;
+$soneto->routes($routes);
+
+// Creates HTTP object
+require_once('core/HTTP.php');
+$HTTP = HTTP::getInstance([
+  'body' => $_POST,
+  'query' => $_GET,
+  'session' => $_SESSION,
+  'cookie' => $_COOKIE,
+  'params' => [],
+  'method' => strtolower($_SERVER['REQUEST_METHOD']),
+  'headers' => apache_request_headers()
+]);
+$soneto->set('HTTP',$HTTP);
+
+// refactor
 $url = $_SERVER['REQUEST_URI'];
-$filename = __FILE__;
-
-$GLOBALS['__soneto']['directory'] = dirname($filename);
-
-if(strpos($url,$config['installation_path']) !== false) $url = substr($url,strlen($config['installation_path']));
+if(strpos($url,$setup['installation_path']) !== false) $url = substr($url,strlen($setup['installation_path']));
 if($url[strlen($url) - 1] == '/') $url = substr($url,0,-1);
 
-$HTTP = core\HTTP::getInstance([
-    'body' => $_POST,
-    'query' => $_GET,
-    'session' => $_SESSION,
-    'cookie' => $_COOKIE,
-    'params' => [],
-    'method' => strtolower($_SERVER['REQUEST_METHOD']),
-    'headers' => apache_request_headers()
-]);
+foreach($soneto->getRoutes() as $route){
+  $method = isset($route['method']) ? strtolower($route['method']) : 'get';
 
-$GLOBALS['__soneto']['HTTP'] = $HTTP;
+  if($method !== $HTTP->method) continue;
 
-$routes = [
-  [
-    'path' => '/:name',
-    'method' => 'get',
-    'action' => 'user#foo'
-  ]
-];
+  $path = $route['path'];
+  $path = str_replace('(:any)','(.+)',$path); //any string
+  $path = str_replace('(:number)','([0-9]+)',$path); //any number
+  $path = str_replace('(:any?)','(.*)',$path); //any optional string
+  $path = str_replace('(:number?)','([0-9]*)',$path); //any optional number
 
-foreach($routes as $route){
-    $method = isset($route['method']) ? strtolower($route['method']) : 'get';
+  $path = regexReplaceRecursively('\/:(.*?)\/','/(.+)/',$path); // any parameter
+  $path = regexReplaceRecursively('\/:(.*?)$','/(.+)',$path); // any parameter
+  $path = regexReplaceRecursively('\/:(.*?)\?\/','/(.*)/',$path); // any optional parameter
+  $path = regexReplaceRecursively('\/:(.*?)\?$','/(.*)',$path); // any optional parameter
 
-    $path = $route['path'];
-    $path = str_replace('(:any)','(.+)',$path); //any string
-    $path = str_replace('(:number)','([0-9]+)',$path); //any number
-    $path = str_replace('(:any?)','(.*)',$path); //any optional string
-    $path = str_replace('(:number?)','([0-9]*)',$path); //any optional number
+  $path = str_replace('/','\/',$path);
 
-    $path = regexReplaceRecursively('\/:(.*?)\/','/(.+)/',$path); // any parameter
-    $path = regexReplaceRecursively('\/:(.*?)$','/(.+)',$path); // any parameter
-    $path = regexReplaceRecursively('\/:(.*?)\?\/','/(.*)/',$path); // any optional parameter
-    $path = regexReplaceRecursively('\/:(.*?)\?$','/(.*)',$path); // any optional parameter
+  if(preg_match('/^'.$path.'$/', $url)){
+    // refactor
+    $HTTP->setRouteParams($route['path'],$url);
+    $HTTP->setRouteData($route,$url);
 
-    $path = str_replace('/','\/',$path);
+    // Handle request with found route
+    $HTTP->handle($route);
 
-    if(preg_match('/^'.$path.'$/', $url)){
-        setRouteParams($route['path'],$url);
-        setRouteData($route,$url);
-
-        $HTTP->handle($route);
-
-        break;
-    }
+    break;
+  }
 }
 
 ?>
