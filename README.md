@@ -41,7 +41,7 @@ The common lifecyle of a Soneto instance is very much like the following steps:
 ### Modules
 Soneto was designed to be simple. Most features are provided by modules. There are official and third-party modules.
 
-## Creating a module
+#### Creating a module
 To create a module, place everything in a folder whose name is the name of the module. The only required file is the *index.php*. The *index.php* must be namespaced as `Module` and make a call to the `Soneto::installModule($name,$callback)`.
 
 ```php
@@ -56,8 +56,11 @@ Soneto::installModule('router',function($soneto){
 
 The `installModule` method receives both the name of the module as the first parameter and a callback function used to install the module. The Soneto instance `$soneto` will be sent when the callback function is invoked. Anything that is returned by the callback function will be stored in the Soneto instance and can be retrieved with `Soneto::module($name)`.
 
-## Installing a module
+#### Installing a module
 To install a module, just place the module folder in */modules* and add the name of the module to the `$modules` array in */config/modules*.
 
-Remember to be very careful when installing third-party modules since we are never sure what it could be doing on
-the background.
+```php
+$modules = ['router'];
+```
+
+Remember to be very careful when installing third-party modules since we are never sure what it could be doing on background.
