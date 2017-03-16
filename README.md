@@ -99,3 +99,5 @@ $modules = ['router'];
 ```
 
 Remember to be very careful when installing third-party modules since we are never sure what it could be doing on background.
+
+### Controllers and Views
