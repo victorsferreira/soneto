@@ -5,6 +5,8 @@
         <title>Home</title>
     </head>
     <body>
+      <?php echo 'oi'; ?>
+        <?php include('teste.php'); ?>
         Welcome to <strong>Soneto</strong>
     </body>
 </html>

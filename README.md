@@ -1,7 +1,7 @@
 # Soneto
 *Version 0.1*
 
-![alt tag](https://github.com/victorsferreira/soneto/master/soneto.png)
+![alt tag](https://github.com/victorsferreira/soneto/master/logo.png)
 
 ##### Author notes
 Please, have in mind that this project started as a personal study.

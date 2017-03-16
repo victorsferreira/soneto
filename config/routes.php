@@ -3,10 +3,8 @@
 $soneto = $GLOBALS[Soneto];
 $router = $soneto->module('router');
 
-$router->get('/:name',function($http){
-  $http->status(201)->json([
-    'name'=>'victor'
-  ]);
+$router->get('/:teste?',function($http){
+  $http->status(201)->render('home');
 });
 
 // $routes = [
@@ -17,4 +15,4 @@ $router->get('/:name',function($http){
 //   ]
 // ];
 
- ?>
+?>

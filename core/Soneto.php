@@ -42,16 +42,22 @@ class Soneto{
     if($modules) $this->data['modules'] = $modules;
   }
 
-  public function getRoutes(){
-    return $this->data['routes'];
+  public function getRoutes($key=null){
+    if($key){
+      if(isset($this->data['routes'][$key])) return $this->data['routes'][$key];
+    }else return $this->data['routes'];
   }
 
-  public function getSetup(){
-    return $this->data['setup'];
+  public function getSetup($key=null){
+    if($key){
+      if(isset($this->data['setup'][$key])) return $this->data['setup'][$key];
+    }else return $this->data['setup'];
   }
 
-  public function getModules(){
-    return $this->data['modules'];
+  public function getModules($key=null){
+    if($key){
+      if(isset($this->data['modules'][$key])) return $this->data['modules'][$key];
+    }else return $this->data['modules'];
   }
 
   public function set($key,$value){
