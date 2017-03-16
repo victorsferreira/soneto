@@ -5,8 +5,7 @@
         <title>Home</title>
     </head>
     <body>
-      <?php echo 'oi'; ?>
-        <?php include('teste.php'); ?>
-        Welcome to <strong>Soneto</strong>
+        Welcome to <strong>Soneto</strong>! <br>
+        Have a look at <a href="https://github.com/victorsferreira/soneto">our tutorial on GitHub</a> to get started.
     </body>
 </html>

@@ -36,6 +36,9 @@ require_once('config/routes.php');
 global $routes;
 $soneto->routes($routes);
 
+// Import and load middlewares
+require_once('config/middlewares.php');
+
 // Creates HTTP object
 require_once('core/HTTP.php');
 $HTTP = HTTP::getInstance([
