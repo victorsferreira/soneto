@@ -42,6 +42,19 @@ class Soneto{
     if($modules) $this->data['modules'] = $modules;
   }
 
+  public function database($database){
+    if($database){
+      if(!isMultidimensionalArray($database)) $database = [$database];
+      $this->data['database'] = $database;
+    }
+  }
+
+  public function getDatabase($key=null){
+    if($key){
+      foreach($this->data['database'] as $database) if($database['id'] == $key) return $database;
+    }else return $this->data['database'];
+  }
+
   public function getRoutes($key=null){
     if($key){
       if(isset($this->data['routes'][$key])) return $this->data['routes'][$key];
