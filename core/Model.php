@@ -7,15 +7,16 @@ class Model{
   public static $loaded = [];
   public $name = '';
   private static $driver;
+  private static $connection;
 
   static $instance = null;
 
-  public function getInstance($data=[]){
-      if(self::$instance === null){
-          self::$instance = new static($data);
-      }
+  public function getInstance(){
+    if(self::$instance === null){
+      self::$instance = new static();
+    }
 
-      return self::$instance;
+    return self::$instance;
   }
 
   private function __clone(){
@@ -35,70 +36,199 @@ class Model{
   public static function __callStatic($model_class_name, $arguments){
     if(isset(self::$loaded[$model_class_name])) return self::$loaded[$model_class_name];
 
+    $original_model_class_name = $model_class_name;
     require_once('./models/'.$model_class_name.'.php');
 
     $model_class_name = '\Model\\'.$model_class_name;
+
     $model = new $model_class_name;
-    $model->name = camelCaseToSnakeCase($model_class_name);
+    $model->name = camelCaseToSnakeCase($original_model_class_name);
     self::$loaded[$model_class_name] = $model;
 
     return $model;
   }
 
   public function __call($name, $arguments){
-    return call_user_func_array(array(self::$driver,$name),$arguments);
+    if(method_exists(self::$driver,$name)) return call_user_func_array(array(self::$driver,$name),$arguments);
+    if(method_exists($this,"_$name")){
+      $name = "_$name";
+      return call_user_func_array(array($this,$name),$arguments);
+    }
   }
 
   public function setDriver($driver){
     self::$driver = $driver;
   }
 
-  // insert(['attr'=>['$date'=>'asdsadsa']])
-  public function insert($data){
-    $name = $this->name;
+  public function setConnection($connection){
+    self::$connection = $connection;
+  }
 
+  public function resolveValue($data){
+    if(is_array($data)){
+      foreach($data as $key => $value){
+        if(is_int($key)){
+          $operator = '$eq';
+          $value = "'$value'";
+        }else{
+          $parts = explode(':',$key);
+
+          $operator = '$eq';
+          if(count($parts) === 1) $key = $parts[0];
+          else{
+            $operator = $parts[0];
+            $key = $parts[1];
+          }
+
+          if(in_array($key,['$number','$func','$function','$raw'])){
+            // $operator = $;
+          }else if(in_array($key,['$like'])){
+            $operator = '$like';
+            $value = "'$value'";
+          }else if(in_array($key,['$string'])){
+            $value = "'$value'";
+          }else if(in_array($key,['$nin','$in'])){
+            $operator = $key;
+            $options = [];
+
+            foreach($value as $option_key => $option_value){
+              $resolved = $this->resolveValue([$option_key=>$option_value]);
+              $options[] = $resolved['value'];
+            }
+
+            $value = '('.implode(', ',$options).')';
+          }else{
+            $value = "'$value'";
+          }
+        }
+      }
+    }else{
+      $operator = '$eq';
+      $value = "'$data'";
+    }
+
+    if(in_array($operator,['$eq','$equals'])) $operator = '=';
+    else if(in_array($operator,['$nin','$not_in'])) $operator = 'NOT IN';
+    else if(in_array($operator,['$like'])) $operator = 'LIKE';
+    else if(in_array($operator,['$in','$in'])) $operator = 'IN';
+    else if(in_array($operator,['$neq','$not_equals'])) $operator = '<>';
+    else if(in_array($operator,['$gt','$greater'])) $operator = '>';
+    else if(in_array($operator,['$lt','$lower'])) $operator = '<';
+    else if(in_array($operator,['$gte','$greater_or_equals'])) $operator = '>=';
+    else if(in_array($operator,['$lte','$lower_or_equals'])) $operator = '<=';
+
+    return ['operator'=>$operator,'value'=>$value];
+  }
+
+  public function resolveCondition($data,$separator=' AND '){
+    $sql = [];
+
+    foreach($data as $key => $value){
+      if(is_int($key) && isAssociativeArray($value)){
+        $sql[] = '('.$this->resolveCondition($value,' OR ').')';
+      }else{
+        if(is_array($value)){
+          if(isAssociativeArray($value)){
+            $resolved = $this->resolveValue($value);
+            $v = $resolved['value'];
+            $op = $resolved['operator'];
+
+            $sql[] = "`$key` $op $v";
+          }else{
+            $options = [];
+
+            foreach($value as $option){
+              $resolved = $this->resolveValue($option);
+              $v = $resolved['value'];
+              $op = $resolved['operator'];
+
+              $options[] = "`$key` $op $v";
+            }
+
+            $sql[] = '('.implode(' OR ', $options).')';
+          }
+        }else{
+          $resolved = $this->resolveValue($value);
+          $v = $resolved['value'];
+          $op = $resolved['operator'];
+
+          $sql[] = "`$key` $op $v";
+        }
+      }
+    }
+
+    return implode($separator, $sql);
+  }
+
+  public function _insert($data){
+    self::$connection->query($this->getInsertQuery($data));
+    return self::$connection->affected();
+  }
+
+  public function _update($data,$conditions){
+    self::$connection->query($this->getUpdateQuery($data,$conditions));
+    return self::$connection->affected();
+  }
+
+  public function _delete($conditions){
+    self::$connection->query($this->getDeleteQuery($conditions));
+    return self::$connection->affected();
+  }
+
+  public function _select($conditions){
+    self::$connection->query($this->getSelectQuery($conditions));
+    return self::$connection->toArray();
+  }
+
+  public function getSelectQuery($conditions){
+    $conditions = $this->resolveCondition($conditions);
+
+    if($conditions) $conditions = "WHERE $conditions";
+
+    $name = $this->name;
+    return "SELECT * FROM $name $conditions";
+  }
+
+  public function getInsertQuery($data){
     $attributes = [];
     $values = [];
 
     foreach($data as $attribute => $value){
-      $attributes[] = "'$attribute'";
-      $values[] = $this->getFormattedValue($value);
+      $resolved = $this->resolveValue($value);
+
+      $attributes[] = "`$attribute`";
+      $values[] = $resolved['value'];
     }
 
     $attributes = implode(', ',$attributes);
     $values = implode(', ',$values);
 
-    $sql = "INSERT INTO $name ($attributes) VALUES ($values)";
-
-    echo $sql;
-
-    return $sql;
+    $name = $this->name;
+    return "INSERT INTO $name ($attributes) VALUES ($values)";
   }
 
-  private function getFormattedValue($value){
-    if(isAssociativeArray($value)){
-      foreach($value as $k => $v){
-        if($k == '$date') $v = "'$v'";
-        else if($k == '$string') $v = "'$v'";
-        else if($k == '$number') $v = $v;
-        else if($k == '$bool' || $k == '$boolean') $v = $v;
-        else if($k == '$raw') $v = $v;
-        else if($k == '$func' || $k == '$function') $v = $v;
-        break;
-      }
+  public function getDeleteQuery($conditions){
+    $conditions = $this->resolveCondition($conditions);
 
-      $value = $v;
-    }else $value = "'$value'";
-
-    return $value;
+    $name = $this->name;
+    return "DELETE FROM $name WHERE $conditions";
   }
 
-  public function delete(){}
+  public function getUpdateQuery($data,$conditions){
+    $updated_data = [];
+    foreach($data as $attribute => $value){
+      $resolved = $this->resolveValue($value);
+      $updated_data[] = "'$attribute'=".$resolved['value'];
+    }
 
-  public function update(){}
+    $conditions = $this->resolveCondition($conditions);
+    $updated_data = implode(', ',$updated_data);
 
-
+    $name = $this->name;
+    return "UPDATE $name SET $updated_data WHERE $conditions";
+  }
 
 }
+
 
 ?>

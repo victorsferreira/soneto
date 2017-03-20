@@ -1,6 +1,7 @@
 <?php
 
 namespace Core;
+
 define('Soneto','__soneto');
 
 session_start();

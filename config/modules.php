@@ -1,5 +1,5 @@
 <?php
 
-$modules = ['router','mysql_driver'];
+$modules = ['router','mysql_connection'];
 
  ?>
