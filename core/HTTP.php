@@ -129,7 +129,7 @@ class HTTP{
         }else{
             // not found
             $middleware->before(function($http){
-                $http->status(404)->plain('Not found');
+                $http->status(404)->render('404');
             });
         }
 
