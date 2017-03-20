@@ -1,5 +1,5 @@
 <?php
 
-$modules = ['router'];
+$modules = ['router','mysql_connection'];
 
  ?>

@@ -30,6 +30,15 @@ class Soneto{
 
   }
 
+  public function loadApplicationJson(){
+      $json = json_decode(file_get_contents('./application.json'));
+      if(!$json) $json = [];
+
+      if(!isset($json['database'])) $json['database'] = [];
+      if(!isset($json['modules'])) $json['modules'] = [];
+      if(!isset($json['installation_path'])) $json['installation_path'] = '';
+  }
+
   public function routes($routes){
     if($routes) $this->data['routes'] = $routes;
   }
@@ -40,6 +49,19 @@ class Soneto{
 
   public function modules($modules){
     if($modules) $this->data['modules'] = $modules;
+  }
+
+  public function database($database){
+    if($database){
+      if(!isMultidimensionalArray($database)) $database = [$database];
+      $this->data['database'] = $database;
+    }
+  }
+
+  public function getDatabase($key=null){
+    if($key){
+      foreach($this->data['database'] as $database) if($database['id'] == $key) return $database;
+    }else return $this->data['database'];
   }
 
   public function getRoutes($key=null){
@@ -70,7 +92,7 @@ class Soneto{
 
   public function loadModules(){
     foreach($this->data['modules'] as $module){
-      require_once('./modules/'.$module.'/index.php');
+      require_once('./modules/'.$module.'/install.php');
     }
   }
 
