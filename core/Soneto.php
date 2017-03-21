@@ -31,12 +31,21 @@ class Soneto{
   }
 
   public function loadApplicationJson(){
-      $json = json_decode(file_get_contents('./application.json'));
-      if(!$json) $json = [];
+    $data = json_decode(file_get_contents('./application.json'),true);
+    if(!$data) $data = [];
+    if(!isset($data['environment'])) $data['environment'] = 'development';
+    $environment_data = json_decode(file_get_contents('./'.$data['environment'].'.json'),true);
+    foreach($environment_data as $key => $value) $data[$key]=$value;
 
-      if(!isset($json['database'])) $json['database'] = [];
-      if(!isset($json['modules'])) $json['modules'] = [];
-      if(!isset($json['installation_path'])) $json['installation_path'] = '';
+    $data = $this->checkApplicationData($data);
+
+    $this->modules($data['modules']);
+    $this->databases($data['databases']);
+
+    unset($data['modules']);
+    unset($data['databases']);
+
+    $this->setup($data);
   }
 
   public function routes($routes){
@@ -51,17 +60,22 @@ class Soneto{
     if($modules) $this->data['modules'] = $modules;
   }
 
-  public function database($database){
-    if($database){
-      if(!isMultidimensionalArray($database)) $database = [$database];
-      $this->data['database'] = $database;
+  public function databases($databases){
+    if($databases){
+      if(isMultidimensionalArray($databases)) $databases = [$databases];
+      $this->data['databases'] = $databases;
     }
   }
 
+  public function getDatabases(){
+    return $this->data['databases'];
+  }
+
   public function getDatabase($key=null){
-    if($key){
-      foreach($this->data['database'] as $database) if($database['id'] == $key) return $database;
-    }else return $this->data['database'];
+    if(!$key) $key = $this->data['setup']['database_id'];
+    foreach($this->data['databases'] as $database){
+      if($database['id'] == $key) return $database;
+    }
   }
 
   public function getRoutes($key=null){
@@ -108,14 +122,15 @@ class Soneto{
     else exit('Module "'.$name.'" has not been loaded');
   }
 
-  public function setupCheck($setup){
-    // required
-    if(!isset($setup['installation_path'])) $setup['installation_path'] = '';
+  public function checkApplicationData($data){
+    if(!isset($data['database'])) $data['database'] = [];
+    if(!isset($data['modules'])) $data['modules'] = [];
+    if(!isset($data['installation_path'])) $data['installation_path'] = '';
 
-    // fixes
-    if(isset($setup['installation_path'][0]) && $setup['installation_path'][0] !== '/') $setup['installation_path'] = '/'.$setup['installation_path'];
+    if(isset($data['installation_path'][0]) && $data['installation_path'][0] !== '/') $data['installation_path'] = '/'.$data['installation_path'];
+    if(!isset($data['database_id'])) $data['database_id'] = $data['databases'][0]['id'];
 
-    return $setup;
+    return $data;
   }
 
 

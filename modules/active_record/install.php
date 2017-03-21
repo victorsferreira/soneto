@@ -8,7 +8,7 @@ Soneto::installModule('active_record',function($soneto){
 
   $model = $soneto->get('Model');
 
-  $model->setDriver(ActiveRecord::getInstance());
+  $model->setDriver(ActiveRecord::getInstance($model));
 });
 
 ?>

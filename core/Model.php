@@ -8,20 +8,6 @@ class Model{
     public $name = '';
     private static $driver;
     private static $connection;
-    private $functions = [
-        'insert' => function(){
-
-        },
-        'update' => function(){
-
-        },
-        'delete' => function(){
-
-        },
-        'select' => function(){
-
-        }
-    ];
 
     static $instance = null;
 
@@ -64,10 +50,30 @@ class Model{
 
     public function __call($name, $arguments){
         if(method_exists(self::$driver,$name)) return call_user_func_array(array(self::$driver,$name),$arguments);
-        if(method_exists($this,"_$name")){
-            $name = "_$name";
-            return call_user_func_array(array($this,$name),$arguments);
+        return $this->publicFunctions($name,$arguments);
+    }
+
+    public function publicFunctions($name,$arguments=null){
+      $functions = [
+        'insert'=>function($data){
+          self::$connection->query($this->getInsertQuery($data));
+          return self::$connection->affected();
+        },
+        'update'=>function($data,$conditions){
+          self::$connection->query($this->getUpdateQuery($data,$conditions));
+          return self::$connection->affected();
+        },
+        'update'=>function($conditions){
+          self::$connection->query($this->getDeleteQuery($conditions));
+          return self::$connection->affected();
+        },
+        'update'=>function($conditions){
+          self::$connection->query($this->getSelectQuery($conditions));
+          return self::$connection->toArray();
         }
+      ];
+
+      if(isset($functions[$name])) return call_user_func_array($functions[$name],$arguments);
     }
 
     public function setDriver($driver){
@@ -175,25 +181,25 @@ class Model{
         return implode($separator, $sql);
     }
 
-    public function _insert($data){
-        self::$connection->query($this->getInsertQuery($data));
-        return self::$connection->affected();
-    }
-
-    public function _update($data,$conditions){
-        self::$connection->query($this->getUpdateQuery($data,$conditions));
-        return self::$connection->affected();
-    }
-
-    public function _delete($conditions){
-        self::$connection->query($this->getDeleteQuery($conditions));
-        return self::$connection->affected();
-    }
-
-    public function _select($conditions){
-        self::$connection->query($this->getSelectQuery($conditions));
-        return self::$connection->toArray();
-    }
+    // public function _insert($data){
+    //     self::$connection->query($this->getInsertQuery($data));
+    //     return self::$connection->affected();
+    // }
+    //
+    // public function _update($data,$conditions){
+    //     self::$connection->query($this->getUpdateQuery($data,$conditions));
+    //     return self::$connection->affected();
+    // }
+    //
+    // public function _delete($conditions){
+    //     self::$connection->query($this->getDeleteQuery($conditions));
+    //     return self::$connection->affected();
+    // }
+    //
+    // public function _select($conditions){
+    //     self::$connection->query($this->getSelectQuery($conditions));
+    //     return self::$connection->toArray();
+    // }
 
     public function getSelectQuery($conditions){
         $conditions = $this->resolveCondition($conditions);
