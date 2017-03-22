@@ -53,12 +53,11 @@ function camelCaseToSnakeCase($input) {
   return implode('_', $ret);
 }
 
-function debug($input){
+function debug($input,$exit=true){
   ?>
-  <pre style="color:red">
-    <?php var_dump($input); ?>
-  </pre>
+  <pre style="color:red"><?php var_dump($input); ?></pre>
   <?php
+  if($exit) exit();
 }
 
 ?>

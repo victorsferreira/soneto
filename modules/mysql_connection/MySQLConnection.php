@@ -33,7 +33,7 @@ class MySQLConnection{
   }
 
   public function toArray(){
-    return mysqli_fetch_all($this->result);
+    return mysqli_fetch_all($this->result,MYSQLI_ASSOC);
   }
 
   public function affected(){

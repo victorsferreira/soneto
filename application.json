@@ -12,7 +12,8 @@
   ],
   "modules": [
     "router",
-    "mysql_connection"
+    "mysql_connection",
+    "active_record"
   ],
   "installation_path": "soneto"
 }

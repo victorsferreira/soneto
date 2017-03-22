@@ -25,49 +25,51 @@ class Model{
     protected function __construct(){
     }
 
-    public static function load($name){
-        require_once('./models/'.$name.'.php');
+    public static function get($model_class_name){
+      $name = camelCaseToSnakeCase($model_class_name);
+      if(isset(self::$loaded[$name])) return self::$loaded[$name];
 
-        $model_class_name = '\Model\\'.$name;
+      $model_class_name = snakeCaseToCamelCase($model_class_name,true);
 
-        return new $model_class_name;
+      require_once('./models/'.$model_class_name.'.php');
+
+      $model_class_name = '\Model\\'.$model_class_name;
+
+      $model = new $model_class_name;
+      $model->name = $name;
+      self::$loaded[$name] = $model;
+
+      return $model;
     }
 
     public static function __callStatic($model_class_name, $arguments){
-        if(isset(self::$loaded[$model_class_name])) return self::$loaded[$model_class_name];
-
-        $original_model_class_name = $model_class_name;
-        require_once('./models/'.$model_class_name.'.php');
-
-        $model_class_name = '\Model\\'.$model_class_name;
-
-        $model = new $model_class_name;
-        $model->name = camelCaseToSnakeCase($original_model_class_name);
-        self::$loaded[$model_class_name] = $model;
-
-        return $model;
+        return self::get($model_class_name);
     }
 
     public function __call($name, $arguments){
-        if(method_exists(self::$driver,$name)) return call_user_func_array(array(self::$driver,$name),$arguments);
-        return $this->publicFunctions($name,$arguments);
+        if(method_exists(self::$driver,$name)){
+          array_unshift($arguments,$this);
+          return call_user_func_array(array(self::$driver,$name),$arguments);
+        }
+
+        return $this->publicFunction($name,$arguments);
     }
 
-    public function publicFunctions($name,$arguments=null){
+    public function publicFunction($name,$arguments=null){
       $functions = [
         'insert'=>function($data){
           self::$connection->query($this->getInsertQuery($data));
           return self::$connection->affected();
         },
-        'update'=>function($data,$conditions){
+        'update'=>function($data,$conditions=null){
           self::$connection->query($this->getUpdateQuery($data,$conditions));
           return self::$connection->affected();
         },
-        'update'=>function($conditions){
+        'delete'=>function($conditions){
           self::$connection->query($this->getDeleteQuery($conditions));
           return self::$connection->affected();
         },
-        'update'=>function($conditions){
+        'select'=>function($conditions=null){
           self::$connection->query($this->getSelectQuery($conditions));
           return self::$connection->toArray();
         }
@@ -201,9 +203,8 @@ class Model{
     //     return self::$connection->toArray();
     // }
 
-    public function getSelectQuery($conditions){
-        $conditions = $this->resolveCondition($conditions);
-
+    public function getSelectQuery($conditions=null){
+        if($conditions) $conditions = $this->resolveCondition($conditions);
         if($conditions) $conditions = "WHERE $conditions";
 
         $name = $this->name;
