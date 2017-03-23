@@ -183,32 +183,12 @@ class Model{
         return implode($separator, $sql);
     }
 
-    // public function _insert($data){
-    //     self::$connection->query($this->getInsertQuery($data));
-    //     return self::$connection->affected();
-    // }
-    //
-    // public function _update($data,$conditions){
-    //     self::$connection->query($this->getUpdateQuery($data,$conditions));
-    //     return self::$connection->affected();
-    // }
-    //
-    // public function _delete($conditions){
-    //     self::$connection->query($this->getDeleteQuery($conditions));
-    //     return self::$connection->affected();
-    // }
-    //
-    // public function _select($conditions){
-    //     self::$connection->query($this->getSelectQuery($conditions));
-    //     return self::$connection->toArray();
-    // }
-
     public function getSelectQuery($conditions=null){
         if($conditions) $conditions = $this->resolveCondition($conditions);
         if($conditions) $conditions = "WHERE $conditions";
 
         $name = $this->name;
-        echo "SELECT * FROM $name $conditions";
+
         return "SELECT * FROM $name $conditions";
     }
 
@@ -241,14 +221,15 @@ class Model{
         $updated_data = [];
         foreach($data as $attribute => $value){
             $resolved = $this->resolveValue($value);
-            $updated_data[] = "'$attribute'=".$resolved['value'];
+            $updated_data[] = "`$attribute`=".$resolved['value'];
         }
 
         $conditions = $this->resolveCondition($conditions);
         $updated_data = implode(', ',$updated_data);
 
         $name = $this->name;
-        return "UPDATE $name SET $updated_data WHERE $conditions";
+
+        return "UPDATE `$name` SET $updated_data WHERE $conditions";
     }
 
 }

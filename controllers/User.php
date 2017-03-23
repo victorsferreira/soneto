@@ -6,8 +6,9 @@ class User extends \Core\Controller{
 
     public function foo($http){
         // $http->render('user/foo',['array'=>['Item 1','Item 2','Item 3']]);
-        $r = Model::get('user')->all();
-        \Core\debug($r->first()->name());
+        $r = Model::get('user')->all()->first();
+        // $r->delete();
+        $r->foo('z131321');
     }
 
     function show($http){

@@ -4,27 +4,26 @@ namespace Module;
 use \Core\Soneto as Soneto;
 
 class Collection{
-  public $list = [];
+  private $list = [];
 
   public function __construct($list){
     $this->list = $list;
   }
 
-  public function add($item){
-    $this->list[] = $item;
-    return $this;
-  }
-
   public function last(){
-    return $this->list[count($this->list) - 1];
+    if(!empty($this->list)) return $this->list[count($this->list) - 1];
   }
 
   public function first(){
-    return $this->list[0];
+    if(!empty($this->list)) return $this->list[0];
   }
 
   public function get($index){
-    return $this->list[$index];
+    if(isset($this->list[$index])) return $this->list[$index];
+  }
+
+  public function length(){
+    return count($this->list);
   }
 
   public function at($index){
@@ -32,7 +31,7 @@ class Collection{
   }
 
   public function second($index){
-    return $this->list[1];
+    if(isset($this->list[1])) return $this->list[1];
   }
 
   public function isEmpty(){
@@ -48,13 +47,15 @@ class Collection{
   }
 
   public function each($callback){
-    foreach($this->list as $i => $item){
-      $callback($item,$i);
-    }
+    foreach($this->list as $i => $item) $callback($item,$i);
   }
 
   public function updateAll($data){
+    foreach($this->list as $item) $item->update($data);
+  }
 
+  public function deleteAll(){
+    foreach($this->list as $item) $item->remove();
   }
 }
 

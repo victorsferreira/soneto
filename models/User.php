@@ -14,8 +14,9 @@ class User extends \Core\Model{
 
   }
 
-  public function foo(){
-    echo 'Foo xxx';
+  public function foo($a1){
+    echo $this->name();
+    echo $a1;
   }
 
 }
