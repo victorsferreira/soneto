@@ -101,6 +101,12 @@ $modules = ['router'];
 Remember to be very careful when installing third-party modules since we are never sure what it could be doing on background.
 
 ### Controllers and views
-Controllers are the layer in a MVC framework responsible for **handling requests**, applying some **logic** and giving a **response** to the client. If this response contains a human-friendly **output**, such as a webpage, table, lists or any information representation, it may be achieved by rendering a **view**. 
+Controllers are the layer in a MVC framework responsible for **handling requests**, applying some **logic** and giving a **response** to the client. If this response contains a human-friendly **output**, such as a webpage, table, lists or any information representation, it may be achieved by rendering a **view**.
+
+### Introduction to models
+
+##### The connection
+
+##### The driver
 
 ### Official modules
