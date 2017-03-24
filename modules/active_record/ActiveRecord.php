@@ -23,19 +23,25 @@ class ActiveRecord{
     $this->model = $model;
   }
 
-  public function create(){
-
-  }
-  public function remove(){
-
+  public function create($model, $data){
+    $params = [$data];
+    return $model->publicFunction('insert',$params);
   }
 
-  public function update(){
-
+  public function remove($model, $conditions){
+    if(is_numeric($conditions)) $conditions = ['id'=>$conditions];
+    $params = [$conditions];
+    return $model->publicFunction('delete',$params);
   }
 
-  public function find(){
+  public function find($model, $conditions){
+    $params = [$conditions];
+    $result = $model->publicFunction('select',$params);
+    $list = [];
 
+    foreach($result as $item) $list[] = new Record($item,$model);
+
+    return new Collection($list);
   }
 
   public function all($model){
@@ -47,8 +53,14 @@ class ActiveRecord{
     return new Collection($list);
   }
 
-  public function findOne(){
+  public function findOne($model, $conditions){
+    if(is_numeric($conditions)) $conditions = ['id'=>$conditions];
+    $params = [$conditions];
+    $result = $model->publicFunction('select',$params);
 
+    if(empty($result)) return null;
+
+    return new Record($result[0],$model);
   }
 
 }

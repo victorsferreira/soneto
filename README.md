@@ -103,10 +103,81 @@ Remember to be very careful when installing third-party modules since we are nev
 ### Controllers and views
 Controllers are the layer in a MVC framework responsible for **handling requests**, applying some **logic** and giving a **response** to the client. If this response contains a human-friendly **output**, such as a webpage, table, lists or any information representation, it may be achieved by rendering a **view**.
 
+In terms of Soneto framework, a Controller is a class that must extend the core class `Controller` and also be namespaced as `Controller`. Actions are public methods in a controller that receives the HTTP request (as an object in the parameter list). All controllers' files go in the */controllers* folder and must be named the same as the classes.
+
+```php
+// /controllers/User.php
+namespace Controller;
+
+class User extends \Core\Controller{
+    public function myAction($http){
+        $http->render('hello',['title'=>'User page', 'message'=>'Hello World!']);
+    }
+}
+```
+
+Note the action invoking the `HTTP::render` method. This is how views are sent to the client. The `hello` view is in the `/views` folder and the .php extension is intentionally omitted. Optionally an associative array can be passed as the second parameter and the keys will turn into variables in the view context.
+
+```php
+<!-- /views/hello.php -->
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title><?php echo $title ?></title>
+    </head>
+    <body>
+        <?php echo $message ?>
+    </body>
+</html>
+```
+
 ### Introduction to models
+Models represent the data and business layer. Everything that is related to persisting, querying and evaluating the traffic of data in the application should be abstracted in a Model. All entities that your project contains or interact with can be translated into models.
+
+In Soneto, a Model is a class that must extend the core class `Model` and also be namespaced as `Model`.
+
+```php
+// /models/User.php
+namespace Model;
+
+class User extends \Core\Model{
+
+  public $schema = [
+    'name'=>['type'=>'string'],
+    'lastname'=>['type'=>'string'],
+    'birthday'=>['type'=>'date']
+  ];
+
+  public function __construct(){
+
+  }
+}
+```
 
 ##### The connection
+No connection to a DBMS is provided by default. The developer should implement it by himself/herself or use a module.
+
+The core Model class contains a static `$connection` attribute that is inherited by all app's models. It is used to store an interface to a connection with the database. The `Model::$connection` attribute must be an instance of a class that contains at least the `query`, `affected` and `toArray` methods, that will respectively, query the database with the provided *SQL* string, returns the number of affected rows by the previous operation and returns the result set in the array format. This implementation is optional, but for calling the native `Model::insert`, `Model::update`, `Model::delete` and `Model::select` methods, it is necessary.
+
+Modules should provide this interface by default, including the **official *MySQL Connection***.
+
+The `Model::setConnection` method must be used to attach the connection to the Model.
 
 ##### The driver
+In Soneto, a driver is an artifact that will help handling the database. No driver is provided by default. The developer should implement it by himself/herself or use a module.
+
+The core Model class contains a static `Model::$driver` attribute that is inherited by all app's models. No implementation is directly recommended, but usually developers would want to store in the `Model::$driver` an instance of a class that has generic methods such as `find`, `findOne`, `all`, `createOrEdit`.
+
+The **official module *Active Record*** contains a basic driver like the one described above.
+
+The `Model::setDriver` method must be used to attach the driver to Model.
 
 ### Official modules
+Soneto was made to be simple and to scale with the project complexity. For very small projects, a clean installation is enough. For more robust ones, external modules and heavy programming may be required.
+
+The official modules in this section are created by the Soneto team.
+
+- Active Record
+- MySQL Connection
+- Router

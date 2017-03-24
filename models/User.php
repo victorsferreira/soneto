@@ -13,12 +13,6 @@ class User extends \Core\Model{
   public function __construct(){
 
   }
-
-  public function foo($a1){
-    echo $this->name();
-    echo $a1;
-  }
-
 }
 
 ?>
