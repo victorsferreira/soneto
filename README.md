@@ -16,11 +16,24 @@ The features that must be contained in the first release are:
 ## Getting Started
 Download and unzip or clone Soneto project from Github to your host directory. You can rename Soneto folder and then open it with your favourite IDE.
 
+### Setup and configuration
+JSON files are used to keep the configuration options.
+
+Basically everything can be stored in a JSON file in the root folder called *application.json*. You can also create any sort of environment types. An additional environment JSON file, *development.json*, comes with Soneto to encourage the use of configuration files. All configuration written in the active environment file will replace the fallback values in *application.json*.
+
+The most important options are:
+- **environment**: the current environment
+- **databases**: a list of database connection data. Each must contain `id` (an arbitrary string), `host`, `name`, `port`, `username`, `password`
+- **database_id**: the default database connection
+- **modules**: a list of installed and active modules
+- **installation_path**: the path the Soneto application in the current host
+
 ### Directory structure
 Initially Soneto comes with a very simple directory structure:
 - **/config** where most of your configuration preferences will be set
 - **/controllers** you will create your custom controllers here
 - **/core** don't touch any file here, you know why
+- **/models** model files go in this folder
 - **/modules** all installed modules must reside in this folder
 - **/views** the default folder for views
 
@@ -92,7 +105,7 @@ Soneto::installModule('router',function($soneto){
 The `installModule` method receives both the name of the module as the first parameter and a callback function used to install the module. The Soneto instance `$soneto` will be sent when the callback function is invoked. Anything that is returned by the callback function will be stored in the Soneto instance and can be retrieved with `Soneto::module($name)`.
 
 ##### Installing a module
-To install a module, just place the module folder in */modules* and add the name of the module to the `$modules` array in */config/modules*.
+To install a module, just place the module folder in */modules* and add the name of the module to the `modules` key in the */application.json*.
 
 ```php
 $modules = ['router'];
