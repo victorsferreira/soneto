@@ -7,7 +7,7 @@ class Model{
     public static $loaded = [];
     public $name = '';
     private static $driver;
-    private static $connection;
+    public static $connection;
 
     static $instance = null;
 
@@ -183,13 +183,14 @@ class Model{
         return implode($separator, $sql);
     }
 
-    public function getSelectQuery($conditions=null){
+    public function getSelectQuery($conditions=null, $table_name=null){
         if($conditions) $conditions = $this->resolveCondition($conditions);
         if($conditions) $conditions = "WHERE $conditions";
 
-        $name = $this->name;
-
-        return "SELECT * FROM $name $conditions";
+        if($table_name) $name = $table_name;
+        else $name = $this->name;
+        
+        return "SELECT * FROM `$name` $conditions";
     }
 
     public function getInsertQuery($data){
@@ -207,14 +208,14 @@ class Model{
         $values = implode(', ',$values);
 
         $name = $this->name;
-        return "INSERT INTO $name ($attributes) VALUES ($values)";
+        return "INSERT INTO `$name` ($attributes) VALUES ($values)";
     }
 
     public function getDeleteQuery($conditions){
         $conditions = $this->resolveCondition($conditions);
 
         $name = $this->name;
-        return "DELETE FROM $name WHERE $conditions";
+        return "DELETE FROM `$name` WHERE $conditions";
     }
 
     public function getUpdateQuery($data,$conditions){

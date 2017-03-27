@@ -23,6 +23,11 @@ class ActiveRecord{
     $this->model = $model;
   }
 
+  public function select($model,$conditions=null,$table_name=null){
+    $model::$connection->query($model->getSelectQuery($conditions, $table_name));
+    return $model::$connection->toArray();
+  }
+
   public function create($model, $data){
     $params = [$data];
     return $model->publicFunction('insert',$params);

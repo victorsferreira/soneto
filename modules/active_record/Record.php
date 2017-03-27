@@ -32,6 +32,31 @@ class Record{
     $this->model->publicFunction('delete',$params);
   }
 
+  private function resolveRelationship($field,$value){
+    $model_name = $field['model'];
+    $model = \Core\Model::get($model_name);
+
+    if(isset($field['many']) && $field['many']){
+      if(!isset($field['through'])) $field['through'] = [];
+      $through = $field['through'];
+
+      if(!isset($through['field'])) $through['field'] = $this->model->name.'_id';
+      if(!isset($through['table'])) $through['table'] = $model->name;
+
+      if(isset($through['target'])){
+        $target = $through['target'];
+        $result = $model->select([$through['field']=>$this->data['id']],$through['table']);
+
+        $list = [];
+        foreach($result as $item) $list[] = $model->findOne($item[$target]);
+      
+        return new Collection($list);
+      }else return $model->find([$through['field']=>$this->data['id']]);
+    }else{
+      return $model->findOne($value);
+    }
+  }
+
   public function json(){
     return json_encode($this->data);
   }
@@ -41,10 +66,20 @@ class Record{
   }
 
   public function __call($name, $arguments){
-    if(isset($this->data[$name])){
+    $schema = $this->model->schema;
+    if(isset($schema[$name]) || $name == 'id'){
       // getter/setter
-      if(empty($arguments)) return $this->data[$name];
-      else $this->data[$name] = $arguments[0];
+      $type = $schema[$name]['type'];
+
+      if(empty($arguments)){
+        $has_field = isset($this->data[$name]);
+        if($has_field) $value = $this->data[$name];
+        else $value = '';
+
+        if($type == 'rel' || $type == 'relationship'){
+          return $this->resolveRelationship($schema[$name], $value);
+        }else return $value;
+      }else if($has_field) $this->data[$name] = $arguments[0];
     }
     else if(method_exists($this->model,$name)){
       // call model's method
