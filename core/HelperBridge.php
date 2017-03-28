@@ -2,22 +2,32 @@
 
 namespace Helper;
 
+class Model{
+  public static function __callStatic($name, $arguments){
+    if($name == 'get') $name = $arguments[0];
+    return \Core\Model::get($name);
+  }
+}
+
 class Helper{
-  public static $loaded = [];
+  public static function __callStatic($name, $arguments){
+    if(function_exists('\core\\'.$name)) $function = '\core\\'.$name;
+    else if(function_exists('\helper\\'.$name)) $function = '\helper\\'.$name;
 
-  public static function __callStatic($model_class_name, $arguments){
-    if(isset(self::$loaded[$model_class_name])) return self::$loaded[$model_class_name];
+    if(isset($function)) call_user_func($function,$arguments);
+  }
+}
 
-    $original_model_class_name = $model_class_name;
-    require_once('./models/'.$model_class_name.'.php');
+class Module{
+  public static function get($name, $arguments){
+    return \Core\Module::get($name);
+  }
+}
 
-    $model_class_name = '\Model\\'.$model_class_name;
-
-    $model = new $model_class_name;
-    $model->name = \Core\camelCaseToSnakeCase($original_model_class_name);
-    self::$loaded[$model_class_name] = $model;
-
-    return $model;
+class Soneto{
+  public static function __callStatic($name, $arguments){
+    $instance = \Core\Soneto::getInstance();
+    if(method_exists($instance, $name) return call_user_func([$instance,$name],$arguments);
   }
 }
 

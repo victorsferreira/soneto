@@ -25,7 +25,13 @@ $soneto->set('Middleware',Middleware::getInstance());
 $soneto->set('Model',Model::getInstance());
 
 // load application setup
+require_once('core/Module.php');
+require_once('core/ModuleBridge.php');
+require_once('core/ModelBridge.php');
 $soneto->loadModules();
+
+// load helpers
+includeAll('helpers');
 
 // Import and load routes
 require_once('config/routes.php');

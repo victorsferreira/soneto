@@ -53,6 +53,11 @@ function camelCaseToSnakeCase($input) {
   return implode('_', $ret);
 }
 
+function includeAll($path){
+  $directory = Soneto::getInstance()->get('directory').'/'.$path;
+  foreach (glob($directory.'/*.php') as $filename) include($filename);
+}
+
 function debug($input,$exit=true){
   ?>
   <pre style="color:red"><?php var_dump($input); ?></pre>

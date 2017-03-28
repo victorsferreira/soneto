@@ -1,7 +1,7 @@
 <?php
 
-$soneto = $GLOBALS[Soneto];
-$router = $soneto->module('router');
+use \Core\Module as Module;
+$router = Module::get('router');
 
 $router->get('/list',function($http){
     global $router;
@@ -11,6 +11,7 @@ $router->get('/list',function($http){
 $router->get('/foo','User#foo');
 
 $router->resources('User');
+
 
 // $routes = [
 //   [

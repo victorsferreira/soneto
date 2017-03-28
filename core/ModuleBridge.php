@@ -1,17 +1,11 @@
 <?php
 
-namespace Controller;
+namespace Module;
 
 class Model{
   public static function __callStatic($name, $arguments){
     if($name == 'get') $name = $arguments[0];
     return \Core\Model::get($name);
-  }
-}
-
-class Module{
-  public static function get($name, $arguments){
-    return \Core\Module::get($name);
   }
 }
 
@@ -24,10 +18,17 @@ class Helper{
   }
 }
 
+class Module{
+  public static function get($name, $arguments){
+    return \Core\Module::get($name);
+  }
+}
+
 class Soneto{
   public static function __callStatic($name, $arguments){
     $instance = \Core\Soneto::getInstance();
     if(method_exists($instance, $name) return call_user_func([$instance,$name],$arguments);
   }
 }
+
 ?>

@@ -34,8 +34,8 @@ class Record{
 
   private function resolveRelationship($field,$value){
     $model_name = $field['model'];
-    $model = \Core\Model::get($model_name);
-
+    $model = Model::get($model_name);
+    
     if(isset($field['many']) && $field['many']){
       if(!isset($field['through'])) $field['through'] = [];
       $through = $field['through'];
@@ -49,7 +49,7 @@ class Record{
 
         $list = [];
         foreach($result as $item) $list[] = $model->findOne($item[$target]);
-      
+
         return new Collection($list);
       }else return $model->find([$through['field']=>$this->data['id']]);
     }else{
