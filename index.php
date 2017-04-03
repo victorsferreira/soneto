@@ -2,6 +2,8 @@
 
 namespace Core;
 
+include('teste.php');
+
 define('Soneto','__soneto');
 
 session_start();
