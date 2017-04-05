@@ -27,7 +27,7 @@ class Helper{
 class Soneto{
   public static function __callStatic($name, $arguments){
     $instance = \Core\Soneto::getInstance();
-    if(method_exists($instance, $name) return call_user_func([$instance,$name],$arguments);
+    if(method_exists($instance, $name)) return call_user_func([$instance,$name],$arguments);
   }
 }
 ?>

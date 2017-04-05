@@ -15,5 +15,8 @@
     "mysql_connection",
     "active_record"
   ],
-  "installation_path": "soneto"
+  "installation_path": "soneto",
+  "daemon": {
+    "interval": 1
+  }
 }

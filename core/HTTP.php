@@ -164,10 +164,6 @@ class HTTP{
 
     $this->url = $url;
   }
-
-  private function log(){
-    //log client IP and date
-  }
 }
 
 ?>

@@ -2,22 +2,26 @@
 
 $task = $argv[1];
 
-if($task == 'start'){
-  file_put_contents('connections','');
-  file_put_contents('runtime.json','{}');
+function stopServer(){
+  $runtime = json_decode(file_get_contents('runtime.json'), true);
+  $pid = $runtime['pid'];
 
-    $dirname = dirname(__FILE__);
+  exec("kill -9 $pid > /dev/null 2>/dev/null &");
+}
 
-    exec("nohup php core/cli/server.php $dirname > /dev/null 2>/dev/null &");
+if($task == 'daemon:start'){
+  stopServer();
+  file_put_contents('runtime.json','{}'); //deletes and recreates runtime.json
 
-    echo "\r\nServer started\r\n";
-  }else if($task == 'stop'){
-    $runtime = json_decode(file_get_contents('runtime.json'), true);
-    $pid = $runtime['pid'];
+  $dirname = dirname(__FILE__);
 
-    exec("kill -9 $pid");
+  exec("nohup php core/cli/server.php $dirname > /dev/null 2>/dev/null &");
 
-    echo "\r\nServer stoped\r\n";
-  }
+  echo "\r\nServer started\r\n";
+}else if($task == 'daemon:stop'){
+  stopServer();
 
-  ?>
+  echo "\r\nServer stoped\r\n";
+}
+
+?>

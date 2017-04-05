@@ -186,6 +186,37 @@ The **official module *Active Record*** contains a basic driver like the one des
 
 The `Model::setDriver` method must be used to attach the driver to Model.
 
+### Daemon
+Soneto comes with a useful feature that allows you to run background jobs as your server is running. The built-in daemon tool is only available in **Linux** systems.
+
+To register new Daemon jobs, open *config/daemon.php* and pass a function that receives the Soneto instance (`$soneto`) in the parameter list to `Daemon::$setJob`.
+
+```php
+// config/daemon.php
+use \Core\Daemon as Daemon;
+$daemon = Daemon::getInstance();
+
+$daemon->setJob(function($soneto){
+  file_put_contents('current_time','It\'s '.date('h:i:s d/m/Y'));
+});
+```
+
+For the Daemon jobs start running, you must first start the daemon server with Soneto's CLI.
+
+### CLI
+
+Note that in the root folder of your Soneto application, there is a `cli.php` file. You can perform command line instructions using *cli.php*. Open the project folder in your terminal and run:
+
+```
+$ php cli.php <task> [<options>]
+```
+
+The available tasks are:
+- **daemon:start**: starts Soneto's daemon server. It first stops the running Daemon server.
+- **daemon:stop**: stops Soneto's daemon server.
+
+Soneto's CLI will create and modify a *runtime.json* file in the project root. Take care of it.
+
 ### Official modules
 Soneto was made to be simple and to scale with the project complexity. For very small projects, a clean installation is enough. For more robust ones, external modules and heavy programming may be required.
 

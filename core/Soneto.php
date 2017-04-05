@@ -30,6 +30,37 @@ class Soneto{
 
   }
 
+  public function start(){
+    define('Soneto','__soneto');
+
+    session_start();
+
+    // load default helpers
+    require_once('core/helpers.php');
+
+    // load configuration
+    $this->loadApplicationJson();
+
+    // load libraries and misc
+    require_once('core/Model.php');
+    require_once('core/Module.php');
+    require_once('core/ModuleBridge.php');
+    require_once('core/ModelBridge.php');
+
+    $directory = dirname(__FILE__);
+    $directory = explode('/',$directory);
+    array_pop($directory);
+
+    $this->set('directory',implode('/',$directory));
+    $this->set('Model',Model::getInstance());
+
+    // load modules
+    $this->loadModules();
+
+    // load user's helpers
+    includeAll('helpers');
+  }
+
   public function loadApplicationJson(){
     $data = json_decode(file_get_contents('./application.json'),true);
     if(!$data) $data = [];
